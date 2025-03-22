@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <SDL.h>
 #include <SDL_image.h>
 
@@ -77,6 +78,16 @@ void Graphics::blitRect(SDL_Texture *texture, SDL_Rect *src, int x, int y)
 
     SDL_RenderCopy(renderer, texture, src, &dest);
 }
+void Graphics::waitUntilKeyPressed()
+{
+    SDL_Event e;
+    while (true) {
+        if ( SDL_PollEvent(&e) != 0 &&
+             (e.type == SDL_KEYDOWN || e.type == SDL_QUIT) )
+            return;
+        SDL_Delay(100);
+    }
+}
 
 void Graphics::quit()
 {
@@ -86,3 +97,31 @@ void Graphics::quit()
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
+bool Graphics::checkClick(int x, int y, SDL_Rect button) {
+    return (x > button.x && x < button.x + button.w &&
+            y > button.y && y < button.y + button.h);
+}
+
+//void Graphics::nextImage(Graphics& graphics, SDL_Rect buttons,SDL_Texture* temp) {
+//    bool running = true;
+//    SDL_Event event;
+//
+//    while (running) {
+//        while (SDL_PollEvent(&event)) {
+//            if (event.type == SDL_QUIT) {
+//                running = false;
+//            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+//                int mouseX = event.button.x;
+//                int mouseY = event.button.y;
+//
+//                if (checkClick(mouseX, mouseY, buttons)) {
+//                    graphics.prepareScene(temp);
+//                    graphics.presentScene();
+//
+//                }
+//            }
+//        }
+//    }
+//}
+
