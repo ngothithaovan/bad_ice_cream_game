@@ -11,12 +11,13 @@
 	<SDL_image.h>
 	"defs.h"
 
-1742885009 d:\game\bad_ice_cream_game\defs.h
+1742918325 d:\game\bad_ice_cream_game\defs.h
 
-1742638713 source:d:\game\bad_ice_cream_game\main.cpp
+1742918368 source:d:\game\bad_ice_cream_game\main.cpp
 	<iostream>
 	<SDL.h>
 	<SDL_image.h>
+	<string>
 	"defs.h"
 	"graphics.h"
 
