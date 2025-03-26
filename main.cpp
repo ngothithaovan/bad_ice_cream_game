@@ -1,12 +1,3 @@
-#include <iostream>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <string>
-#include "defs.h"
-#include "graphics.h"
-
-
-using namespace std;
 /*
 # : Tường
 
@@ -16,104 +7,147 @@ E : Kẻ thù
 
 F : Trái cây
 */
+#include <iostream>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <string>
+#include "defs.h"
+#include "graphics.h"
+
+using namespace std;
+
 char levelData[MAP_HEIGHT][MAP_WIDTH] = {
     "##################",
-    "#P      #    F   #",
+    "#P  F   #    F   #",
     "#  #### #  ####  #",
-    "#  #       #  #  #",
-    "#  #  ######  #  #",
-    "#     #       #  #",
+    "#  #   F   #  # F#",
+    "#F #  ###### F#  #",
+    "#  F  #F      #F #",
     "##### #  ######  #",
     "#     #    E     #",
-    "#  ###########   #",
+    "#  ########### F #",
     "#  #  E  #   #   #",
     "#  ####  #  ###  #",
-    "#     E     F    #",
+    "# F   E     F    #",
     "##################"
 };
+
 int playerRow = 1, playerCol = 1;
-int playerX = playerCol * TILE_SIZE, playerY = playerRow * TILE_SIZE;
-// Biến để kiểm soát tốc độ di chuyển
-Uint32 lastMoveTime = 0;  // Lưu thời gian lần di chuyển cuối
+float playerX = playerCol * TILE_SIZE, playerY = playerRow * TILE_SIZE;
+float velocityX = 0, velocityY = 0;
+bool gameOver =  false;
+bool breakIce = false;
+SDL_Texture* gameOverTexture = nullptr;
 
-// kiem tra co the di chuyen hay khong
-bool canMove(int newX, int newY) {
-    int newRow = newY / TILE_SIZE;
-    int newCol = newX / TILE_SIZE;
+bool isNearWall(float x, float y) {
+    int col = x / TILE_SIZE;
+    int row = y / TILE_SIZE;
+    if (col < 0 || col >= MAP_WIDTH || row < 0 || row >= MAP_HEIGHT) return true;
 
-    // Kiểm tra không vượt giới hạn bản đồ
-    if (newRow < 0 || newRow >= MAP_HEIGHT || newCol < 0 || newCol >= MAP_WIDTH) return false;
-
-    // Kiểm tra có tường cản đường không
-    return levelData[newRow][newCol] != '#';
-}
-// Xu ly hap phim di chuyen
-void handleInput(SDL_Event& event) {
-    Uint32 currentTime = SDL_GetTicks();  // Lấy thời gian hiện tại
-
-    if (event.type == SDL_KEYDOWN && (currentTime - lastMoveTime >= moveCooldown)) {
-       int newX = playerX, newY = playerY;
-
-        switch (event.key.keysym.sym) {
-            case SDLK_UP: newY --; break;
-            case SDLK_DOWN: newY++; break;
-            case SDLK_LEFT: newX--; break;
-            case SDLK_RIGHT: newX++; break;
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            int checkRow = row + dy;
+            int checkCol = col + dx;
+            if (checkRow >= 0 && checkRow < MAP_HEIGHT && checkCol >= 0 && checkCol < MAP_WIDTH) {
+                if (levelData[checkRow][checkCol] == '#') {
+                    float wallX = checkCol * TILE_SIZE;
+                    float wallY = checkRow * TILE_SIZE;
+                    if (abs(x - wallX) < 50 && abs(y - wallY) < 50) {
+                        return true;
+                    }
+                }
+            }
         }
+    }
+    return false;
+}
 
-        if (canMove(newX, newY)) {
-            // Xóa nhân vật khỏi vị trí cũ
-            levelData[playerRow][playerCol] = ' ';
-            // Cập nhật vị trí mới
-            playerX = newX;
-            playerY = newY;
-            levelData[playerRow][playerCol] = 'P';
+void handleInput(SDL_Event& event) {
+    if (event.type == SDL_KEYDOWN) {
+        switch (event.key.keysym.sym) {
+            case SDLK_UP: velocityY = -playerSpeed; break;
+            case SDLK_DOWN: velocityY = playerSpeed; break;
+            case SDLK_LEFT: velocityX = -playerSpeed; break;
+            case SDLK_RIGHT: velocityX = playerSpeed; break;
+            case SDLK_SPACE:
+                int frontRow = playerRow;
+                int frontCol = playerCol;
 
-            lastMoveTime = currentTime;  // Cập nhật thời gian di chuyển cuối
+                if (velocityX > 0) frontCol += 1; // Đang đi sang phải
+                else if (velocityX < 0) frontCol -= 1; // Đang đi sang trái
+                else if (velocityY > 0) frontRow += 1; // Đang đi xuống
+                else if (velocityY < 0) frontRow -= 1; // Đang đi lên
+
+                if (frontRow >= 0 && frontRow < MAP_HEIGHT && frontCol >= 0 && frontCol < MAP_WIDTH) {
+                    if (levelData[frontRow][frontCol] == '#') {
+                        levelData[frontRow][frontCol] = ' ';
+                    }
+                }
+                break;
+        }
+    } else if (event.type == SDL_KEYUP) {
+        switch (event.key.keysym.sym) {
+            case SDLK_UP: case SDLK_DOWN: velocityY = 0; break;
+            case SDLK_LEFT: case SDLK_RIGHT: velocityX = 0; break;
         }
     }
 }
-void drawLevel(Graphics* graphics,SDL_Texture* ice ,SDL_Texture* fruit,SDL_Texture* enemy, SDL_Texture* player) {
 
+void updatePlayer(bool &running) {
+    if (gameOver) return;
+
+    float newX = playerX + velocityX;
+    float newY = playerY + velocityY;
+    int newCol = newX / TILE_SIZE;
+    int newRow = newY / TILE_SIZE;
+
+    if (!isNearWall(newX, newY)) {
+        playerX = newX;
+        playerY = newY;
+    }
+
+    if (levelData[newRow][newCol] == 'F') {
+        levelData[newRow][newCol] = ' ';
+    } else if (levelData[newRow][newCol] == 'E') {
+        gameOver = true;
+    }
+}
+void drawLevel(Graphics* graphics, SDL_Texture* ice, SDL_Texture* fruit, SDL_Texture* enemy, SDL_Texture* player) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            SDL_Rect rect = {x * TILE_SIZE, y *TILE_SIZE, TILE_SIZE, TILE_SIZE};
+            SDL_Rect rect = {x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE};
             SDL_Texture* texture = NULL;
-
             switch (levelData[y][x]) {
                 case '#': texture = ice; break;
                 case 'F': texture = fruit; break;
                 case 'E': texture = enemy; break;
             }
-
             if (texture != NULL) {
-                graphics->renderTexture( texture,rect.x,rect.y);
+                graphics->renderTexture(texture, rect.x, rect.y);
             }
         }
     }
-    graphics->renderTexture(player, playerX, playerY);
+    graphics->renderTexture(player, (int)playerX, (int)playerY);
+    if (gameOver && gameOverTexture) {
+        graphics->renderTexture(gameOverTexture, 200, 200);
+    }
 }
 
 int main(int argc, char* argv[]) {
     Graphics graphics;
-    //Player player(&graphics);
     graphics.init();
 
     SDL_Texture *background = graphics.loadTexture("background_start.JPG");
     SDL_Texture *icecreamtitle = graphics.loadTexture("icecreamtitle.PNG");
     SDL_Texture *startgame = graphics.loadTexture("startgame.PNG");
     SDL_Texture *backgroundPlay = graphics.loadTexture("background_play.PNG");
-
-    //cac nhan vat trong game
     SDL_Texture *icetexture = graphics.loadTexture("ice.PNG");
     SDL_Texture *fruittexture = graphics.loadTexture("fruit.PNG");
     SDL_Texture *enemytexture = graphics.loadTexture("enemy.PNG");
     SDL_Texture *playertexture = graphics.loadTexture("player.PNG");
+    gameOverTexture = graphics.loadTexture("gameover.JPG");
 
-
-
-
-     bool running = true;
+    bool running = true;
     int gameState = 0;
     SDL_Rect startButton = {380, 450, 200, 80};
 
@@ -122,8 +156,7 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
-            }
-            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int mouseX = event.button.x;
                 int mouseY = event.button.y;
                 if (mouseX >= startButton.x && mouseX <= startButton.x + startButton.w &&
@@ -140,8 +173,9 @@ int main(int argc, char* argv[]) {
             graphics.renderTexture(startgame, startButton.x, startButton.y);
             graphics.presentScene();
         } else if (gameState == 1) {
+            updatePlayer(running);
             graphics.prepareScene(backgroundPlay);
-            drawLevel(&graphics, icetexture, fruittexture,enemytexture,playertexture);
+            drawLevel(&graphics, icetexture, fruittexture, enemytexture, playertexture);
             graphics.presentScene();
         }
         SDL_Delay(16);
@@ -150,9 +184,7 @@ int main(int argc, char* argv[]) {
     SDL_DestroyTexture(background);
     SDL_DestroyTexture(icecreamtitle);
     SDL_DestroyTexture(startgame);
-
+    SDL_DestroyTexture(gameOverTexture);
     graphics.quit();
     return 0;
 }
-
-

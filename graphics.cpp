@@ -103,25 +103,3 @@ bool Graphics::checkClick(int x, int y, SDL_Rect button) {
             y > button.y && y < button.y + button.h);
 }
 
-//void Graphics::nextImage(Graphics& graphics, SDL_Rect buttons,SDL_Texture* temp) {
-//    bool running = true;
-//    SDL_Event event;
-//
-//    while (running) {
-//        while (SDL_PollEvent(&event)) {
-//            if (event.type == SDL_QUIT) {
-//                running = false;
-//            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
-//                int mouseX = event.button.x;
-//                int mouseY = event.button.y;
-//
-//                if (checkClick(mouseX, mouseY, buttons)) {
-//                    graphics.prepareScene(temp);
-//                    graphics.presentScene();
-//
-//                }
-//            }
-//        }
-//    }
-//}
-

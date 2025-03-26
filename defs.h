@@ -7,6 +7,6 @@
 const int MAP_WIDTH = 19;
 const int MAP_HEIGHT = 14;
 const int TILE_SIZE = 50;
-const int PLAYER_SPEED = 50;
-const Uint32 moveCooldown = 200;
+const float playerSpeed = 2.5f;
+
 #endif
