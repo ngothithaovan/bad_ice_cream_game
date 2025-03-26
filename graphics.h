@@ -20,7 +20,7 @@ struct Graphics{
     void waitUntilKeyPressed();
     void quit();
     bool checkClick(int x,int y,SDL_Rect bottom);
-   // void nextImage(Graphics& graphics, SDL_Rect buttons,SDL_Texture* temp);
+
 
 };
 

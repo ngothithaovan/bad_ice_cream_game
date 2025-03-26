@@ -7,6 +7,6 @@
 const int MAP_WIDTH = 19;
 const int MAP_HEIGHT = 14;
 const int TILE_SIZE = 50;
-const float playerSpeed = 2.5f;
+const float playerSpeed = 2.0f;
 
 #endif

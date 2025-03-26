@@ -98,8 +98,3 @@ void Graphics::quit()
     SDL_Quit();
 }
 
-bool Graphics::checkClick(int x, int y, SDL_Rect button) {
-    return (x > button.x && x < button.x + button.w &&
-            y > button.y && y < button.y + button.h);
-}
-

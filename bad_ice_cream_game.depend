@@ -1,19 +1,19 @@
 # depslib dependency file v1.0
-1742984802 source:d:\game\bad_ice_cream_game\graphics.cpp
+1743000498 source:d:\game\bad_ice_cream_game\graphics.cpp
 	<iostream>
 	<vector>
 	<SDL.h>
 	<SDL_image.h>
 	"graphics.h"
 
-1742498509 d:\game\bad_ice_cream_game\graphics.h
+1743001847 d:\game\bad_ice_cream_game\graphics.h
 	<SDL.h>
 	<SDL_image.h>
 	"defs.h"
 
-1742920261 d:\game\bad_ice_cream_game\defs.h
+1743003080 d:\game\bad_ice_cream_game\defs.h
 
-1742996916 source:d:\game\bad_ice_cream_game\main.cpp
+1743003009 source:d:\game\bad_ice_cream_game\main.cpp
 	<iostream>
 	<SDL.h>
 	<SDL_image.h>
