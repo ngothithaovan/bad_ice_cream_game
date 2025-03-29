@@ -31,7 +31,15 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="SDL2_mixer-2.6.3/include" />
 		</Compiler>
+		<Linker>
+			<Add library="SDL2_mixer" />
+			<Add library="SDL2" />
+			<Add directory="SDL2_mixer-2.6.3/lib" />
+		</Linker>
+		<Unit filename="audio.cpp" />
+		<Unit filename="audio.h" />
 		<Unit filename="defs.h" />
 		<Unit filename="graphics.cpp" />
 		<Unit filename="graphics.h" />

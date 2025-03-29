@@ -1,12 +1,11 @@
 #include <iostream>
 #include <SDL.h>
-#include <SDL_mixer.h>
 #include <SDL_image.h>
 #include <string>
 #include <vector>
 #include "defs.h"
 #include "graphics.h"
-#include "audio.h"
+#include "AudioManager.h"
 
 using namespace std;
 
@@ -18,8 +17,6 @@ float velocityX = 0, velocityY = 0;
 bool gameOver = false;
 bool breakIce = false;
 bool gameWin = false;
-bool gameOverSoundPlayed = false;
-
 SDL_Texture* winTexture = nullptr;
 SDL_Texture* gameOverTexture = nullptr;
 struct Enemy {
@@ -214,7 +211,7 @@ bool isNearWall(float x, float y) {
 
 
 // cap nhat
-void updatePlayer(bool& running,Audio& audio) {
+void updatePlayer(bool& running) {
     if (gameOver) return;
 
     float newX = playerX + velocityX;
@@ -241,8 +238,6 @@ void updatePlayer(bool& running,Audio& audio) {
 
     if (levelData[newRow][newCol] == 'F') {
         levelData[newRow][newCol] = ' ';
-        audio.playSound("eat");
-        Mix_VolumeChunk(audio.getChunk("eat"), 110);
         if (checkWinCondition()) {
             gameWin = true;
         }
@@ -293,25 +288,19 @@ void drawLevel(Graphics* graphics, SDL_Texture* ice, SDL_Texture* fruit, SDL_Tex
 int main(int argc, char* argv[]) {
     Graphics graphics;
     graphics.init();
-    Audio audio;
-    audio.init();
-    SDL_Texture* background = graphics.loadTexture("assets/images/background_start.JPG");
-    SDL_Texture* icecreamtitle = graphics.loadTexture("assets/images/icecreamtitle.PNG");
-    SDL_Texture* startgame = graphics.loadTexture("assets/images/startgame.PNG");
-    SDL_Texture* backgroundPlay = graphics.loadTexture("assets/images/background_play.PNG");
-    SDL_Texture* icetexture = graphics.loadTexture("assets/images/ice.PNG");
-    SDL_Texture* fruittexture = graphics.loadTexture("assets/images/fruit.PNG");
-    SDL_Texture* enemytexture = graphics.loadTexture("assets/images/enemy.PNG");
-    SDL_Texture* playertexture = graphics.loadTexture("assets/images/player.PNG");
-    gameOverTexture = graphics.loadTexture("assets/images/gameover.JPG");
-    winTexture = graphics.loadTexture("assets/images/win.JPG");
 
-    // am thanh
-    //audio.loadSound("eat", "assets/sounds/eat.wav");
-    //audio.loadSound("ice_break", "assets/sounds/break.wav");
-    audio.loadMusic("assets/music/music.mp3");
-    audio.loadSound("lose", "assets/sounds/lost.wav");
-    audio.loadSound("eat", "assets/sounds/eat.wav");
+    SDL_Texture* background = graphics.loadTexture("background_start.JPG");
+    SDL_Texture* icecreamtitle = graphics.loadTexture("icecreamtitle.PNG");
+    SDL_Texture* startgame = graphics.loadTexture("startgame.PNG");
+    SDL_Texture* backgroundPlay = graphics.loadTexture("background_play.PNG");
+    SDL_Texture* icetexture = graphics.loadTexture("ice.PNG");
+    SDL_Texture* fruittexture = graphics.loadTexture("fruit.PNG");
+    SDL_Texture* enemytexture = graphics.loadTexture("enemy.PNG");
+    SDL_Texture* playertexture = graphics.loadTexture("player.PNG");
+    gameOverTexture = graphics.loadTexture("gameover.JPG");
+    winTexture = graphics.loadTexture("win.JPG");
+
+
     bool running = true;
     int gameState = 0;
     SDL_Rect startButton = {380, 450, 200, 80};
@@ -329,8 +318,6 @@ int main(int argc, char* argv[]) {
                 if (mouseX >= startButton.x && mouseX <= startButton.x + startButton.w &&
                     mouseY >= startButton.y && mouseY <= startButton.y + startButton.h) {
                     gameState = 1;
-                    audio.playMusic();
-                    Mix_VolumeMusic(40);
                 }
             }
             handleInput(event);
@@ -356,20 +343,11 @@ int main(int argc, char* argv[]) {
                     }
                 }
 }
-            updatePlayer(running,audio);
+            updatePlayer(running);
             updateEnemies();
             graphics.prepareScene(backgroundPlay);
             drawLevel(&graphics, icetexture, fruittexture, enemytexture, playertexture);
             graphics.presentScene();
-            if(gameOver)
-            {
-                if(!gameOverSoundPlayed){
-
-                    audio.stopMusic();
-                    audio.playSound("lose");
-                    gameOverSoundPlayed=true;
-                }
-            }
         }
         SDL_Delay(16);
     }
@@ -380,7 +358,5 @@ int main(int argc, char* argv[]) {
     SDL_DestroyTexture(gameOverTexture);
     SDL_DestroyTexture(winTexture);
     graphics.quit();
-    audio.cleanup();
-
     return 0;
 }
