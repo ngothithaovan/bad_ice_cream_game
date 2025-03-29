@@ -11,11 +11,11 @@
 	<SDL_image.h>
 	"defs.h"
 
-1743242833 d:\game\bad_ice_cream_game\defs.h
+1743264706 d:\game\bad_ice_cream_game\defs.h
 
-1743243729 source:d:\game\bad_ice_cream_game\main.cpp
+1743267569 source:d:\game\bad_ice_cream_game\main.cpp
 	<iostream>
-	<queue>
+	<ctime>
 	<SDL.h>
 	<SDL_mixer.h>
 	<SDL_image.h>
