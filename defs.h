@@ -14,4 +14,5 @@ const Uint32 breakCooldown = 1000;
 const int PLAYER_SIZE = 40;
 const int SPEED = 2;
 const int CHARACTER_SIZE = 50;
+
 #endif

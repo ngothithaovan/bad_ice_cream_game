@@ -25,21 +25,37 @@ Uint32 lastBreakTime = 0;
 SDL_Texture* winTexture = nullptr;
 SDL_Texture* gameOverTexture = nullptr;
 
-char levelData[MAP_HEIGHT][MAP_WIDTH] = {
+//char levelData[MAP_HEIGHT][MAP_WIDTH] = {
+//    "##################",
+//    "#P F F#F E F# F E#",
+//    "#F###F######F###F#",
+//    "#F#F F#F EFF#F F #",
+//    "#F#F##F######F#F##",
+//    "#F FFF#FFF #FFF F#",
+//    "#####F#F##F#####F#",
+//    "#F E F#F F E F F #",
+//    "#F##F######F###F #",
+//    "#F#FF#F E#F F#F F#",
+//    "#F#E####F#F##FFF #",
+//    "#FFF EFFF FFEF FF#",
+//    "##################",
+//    "###F###F##F###F###"
+//};
+ char levelData[MAP_HEIGHT][MAP_WIDTH] = {
     "##################",
-    "#P F F#F E F# F E#",
-    "#F###F######F###F#",
-    "#F#F F#F EFF#F F #",
-    "#F#F##F######F#F##",
-    "#F FFF#FFF #FFF F#",
-    "#####F#F##F#####F#",
-    "#F E F#F F E F F #",
-    "#F##F######F###F #",
-    "#F#FF#F E#F F#F F#",
-    "#F#E####F#F##FFF #",
-    "#FFF EFFF FFEF FF#",
+    "#P F  ##########E#",
+    "# ### ############",
+    "# #  #       #   #",
+    "# # ## ###### # ##",
+    "#     #     #    #",
+    "##### # ##F#### ##",
+    "#    #         F #",
+    "# ## ###### ###  #",
+    "#  ## #  #   #  ##",
+    "# # #### # ##    #",
+    "#         F      #",
     "##################",
-    "###F###F##F###F###"
+    "### ### ## ### ###"
 };
 // Kiểm tra gần tường
 bool isNearWall(float x, float y) {
@@ -320,22 +336,22 @@ void resetGame() {
     gameOverSoundPlayed = false;
     bottom_startSound = false;
     lastBreakTime = 0;
-    const char originalMap[MAP_HEIGHT][MAP_WIDTH] = {
-        "##################",
-        "#P F F#F E F# F E#",
-        "#F###F######F###F#",
-        "#F#F F#F EFF#F F #",
-        "#F#F##F######F#F##",
-        "#F FFF#FFF #FFF F#",
-        "#####F#F##F#####F#",
-        "#F E F#F F E F F #",
-        "#F##F######F###F #",
-        "#F#FF#F E#F F#F F#",
-        "#F#E####F#F##FFF #",
-        "#FFF EFFF FFEF FF#",
-        "##################",
-        "###F###F##F###F###"
-    };
+   const char originalMap[MAP_HEIGHT][MAP_WIDTH] = {
+    "##################",
+    "#P F  ##########E#",
+    "# ### ############",
+    "# #  #       #   #",
+    "# # ## ###### # ##",
+    "#     #     #    #",
+    "##### # ##F#### ##",
+    "#    #         F #",
+    "# ## ###### ###  #",
+    "#  ## #  #   #  ##",
+    "# # #### # ##    #",
+    "#         F      #",
+    "##################",
+    "### ### ## ### ###"
+};
     memcpy(levelData, originalMap, sizeof(levelData));
     enemies.clear();
     for (int row = 0; row < MAP_HEIGHT; ++row) {
@@ -371,6 +387,7 @@ int main(int argc, char* argv[]) {
     SDL_Texture* fruittexture = graphics.loadTexture("assets/images/fruit.PNG");
     SDL_Texture* playertexture = graphics.loadTexture("assets/images/player.PNG");
     SDL_Texture* enemytexture = graphics.loadTexture("assets/images/enemy.PNG");
+    SDL_Texture* menutexture = graphics.loadTexture("assets/images/menu.PNG");
     gameOverTexture = graphics.loadTexture("assets/images/gameover.JPG");
     winTexture = graphics.loadTexture("assets/images/win.JPG");
 
@@ -381,11 +398,12 @@ int main(int argc, char* argv[]) {
     audio.loadSound("bottom_start", "assets/sounds/bottom_start.wav");
     audio.loadSound("break_ice", "assets/sounds/break_ice.wav");
 
-    // Trạng thái game
+
     enum GameState { MENU, PLAYING, WIN, GAMEOVER };
     GameState currentState = MENU;
 
-    SDL_Rect startButton = {370, 450, 200, 80}; // vùng bấm Start
+    SDL_Rect startButton = {370, 450, 200, 80};
+    SDL_Rect menuButton = {370, 520, 180, 60};
     setupFruitTimer();
 
     // Khởi tạo enemy từ map
@@ -436,6 +454,17 @@ int main(int argc, char* argv[]) {
                 resetGame();
             }
         }
+        if (currentState == WIN && event.type == SDL_MOUSEBUTTONDOWN) {
+            if (isMouseClickedInRect(event, menuButton)) {
+                audio.playSound("bottom_start");
+                currentState = MENU;
+                audio.playMusic();
+                Mix_VolumeMusic(40);
+                gameWin = false;
+                gameOverSoundPlayed = false;
+                resetGame();
+            }
+        }
 
         handleInput(event, audio);
     }
@@ -473,9 +502,10 @@ int main(int argc, char* argv[]) {
         }
 
         else if (currentState == WIN) {
+            graphics.renderTexture(menutexture, menuButton.x, menuButton.y);
             graphics.prepareScene(winTexture);
             graphics.presentScene();
-            // Tương tự như Game Over
+
         }
 
         SDL_Delay(16);

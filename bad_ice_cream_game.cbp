@@ -45,6 +45,7 @@
 		<Unit filename="assets/images/gameover.jpg" />
 		<Unit filename="assets/images/ice.png" />
 		<Unit filename="assets/images/icecreamtitle.png" />
+		<Unit filename="assets/images/menu.png" />
 		<Unit filename="assets/images/player.png" />
 		<Unit filename="assets/images/startgame.png" />
 		<Unit filename="assets/images/win.jpg" />
