@@ -19,42 +19,46 @@ bool gameOver = false;
 bool breakIce = false;
 bool gameWin = false;
 bool gameOverSoundPlayed = false;
+bool bottom_startSound = false;
+Uint32 lastBreakTime = 0;
+
 
 SDL_Texture* winTexture = nullptr;
 SDL_Texture* gameOverTexture = nullptr;
 struct Enemy {
     float x, y;
     int direction;
-    float speed = 1.5f;
+    float speed = 3.5f;
 };
 
 vector<Enemy> enemies;
 
 char levelData[MAP_HEIGHT][MAP_WIDTH] = {
     "##################",
-    "#P  F   #    F E #",
-    "#  #### #  ####  #",
-    "#  #E  F   #  # F#",
-    "#F #  ###### F#  #",
-    "#  F  #F      #F #",
-    "##### #  ######  #",
-    "# E   #    E     #",
-    "#  ########### F #",
-    "#  #  E  #   #   #",
-    "#  ####  #  ###  #",
-    "# F   E     F    #",
+    "#P   F #  E  #  E#",
+    "# ### ###### ### #",
+    "# #  F#   E  #F  #",
+    "# # ## ###### # ##",
+    "# F   # F  #  F  #",
+    "##### # ## ##### #",
+    "#  E  # F   E   F#",
+    "# ## ###### ###  #",
+    "# # F#  E #F  #  #",
+    "# #E #### # ## F #",
+    "#F    E F    E   #",
     "##################"
 };
+
 //check win
 bool checkWinCondition() {
     for (int row = 0; row < MAP_HEIGHT; row++) {
         for (int col = 0; col < MAP_WIDTH; col++) {
             if (levelData[row][col] == 'F') {
-                return false; // Vẫn còn trái cây, chưa thắng
+                return false;
             }
         }
     }
-    return true; // Không còn 'F' nào => thắng game
+    return true;
 }
 
 // di chuyen theo huong
@@ -69,41 +73,39 @@ void handleMovement(SDL_Keycode key) {
     velocityX = dx[lastDirection] * playerSpeed;
     velocityY = dy[lastDirection] * playerSpeed;
 }
-//tao bang theo huong
-void createIceBlock() {
-    int iceRow = playerY / TILE_SIZE + dy[lastDirection];
-    int iceCol = playerX / TILE_SIZE + dx[lastDirection];
-
-    if (iceRow >= 0 && iceRow < MAP_HEIGHT &&
-        iceCol >= 0 && iceCol < MAP_WIDTH &&
-        levelData[iceRow][iceCol] == ' ') {
-        levelData[iceRow][iceCol] = '#';
-    }
-}
 // pha bang theo huong
-void breakIceBlock() {
+void breakIceBlock(Audio &audio) {
     int iceRow = playerY / TILE_SIZE + dy[lastDirection];
     int iceCol = playerX / TILE_SIZE + dx[lastDirection];
 
     if (iceRow >= 0 && iceRow < MAP_HEIGHT &&
         iceCol >= 0 && iceCol < MAP_WIDTH &&
         levelData[iceRow][iceCol] == '#') {
+
         levelData[iceRow][iceCol] = ' ';
+        if (!breakIce) {
+            audio.playSound("break_ice");
+            Mix_VolumeChunk(audio.getChunk("break_ice"), 128 );
+            breakIce = true;
+        }
     }
 }
+
 //handleinput
-void handleInput(SDL_Event& event) {
+void handleInput(SDL_Event& event,Audio &audio) {
     if (event.type == SDL_KEYDOWN) {
         SDL_Keycode key = event.key.keysym.sym;
 
         if (key == SDLK_UP || key == SDLK_DOWN || key == SDLK_LEFT || key == SDLK_RIGHT) {
             handleMovement(key);
         }
-        else if (key == SDLK_b) {
-            createIceBlock();
-        }
         else if (key == SDLK_SPACE) {
-            breakIceBlock();  // Gọi nếu bạn muốn phá băng khi nhấn SPACE
+            Uint32 now = SDL_GetTicks();
+            if (!breakIce && now - lastBreakTime >= breakCooldown) {
+                breakIceBlock(audio);
+                breakIce = true;
+                lastBreakTime = now;
+            }
         }
     }
     else if (event.type == SDL_KEYUP) {
@@ -160,26 +162,21 @@ void updateEnemies() {
         float targetX = targetCol * TILE_SIZE;
         float targetY = targetRow * TILE_SIZE;
 
-        // Kiểm tra xem hướng hiện tại có đi được không
         if (targetRow >= 0 && targetRow < MAP_HEIGHT &&
             targetCol >= 0 && targetCol < MAP_WIDTH &&
             levelData[targetRow][targetCol] == ' ') {
 
-            // Di chuyển mượt
             if (abs(e.x - targetX) > e.speed) e.x += (targetX > e.x) ? e.speed : -e.speed;
-            if (abs(e.y - targetY) > e.speed) e.y += (targetY > e.y) ? e.speed : -e.speed;
+        if (abs(e.y - targetY) > e.speed) e.y += (targetY > e.y) ? e.speed : -e.speed;
+        if (!(targetRow >= 0 && targetRow < MAP_HEIGHT && targetCol >= 0 && targetCol < MAP_WIDTH &&
+              levelData[targetRow][targetCol] == ' ')) {
+            e.direction = rand() % 4;  // Đổi hướng ngay
+        }
 
-            // Nếu đã gần tới đích, chọn hướng mới
-            if (abs(e.x - targetX) < 1.0f && abs(e.y - targetY) < 1.0f) {
-                e.x = targetX; e.y = targetY;
-                e.direction = rand() % 4;
-            }
         } else {
-            // Nếu bị chặn, đổi hướng ngẫu nhiên ngay
             e.direction = rand() % 4;
         }
 
-        // Va chạm với player
         if (abs(e.x - playerX) < TILE_SIZE / 2 && abs(e.y - playerY) < TILE_SIZE / 2) {
             gameOver = true;
         }
@@ -253,9 +250,7 @@ void updatePlayer(bool& running,Audio& audio) {
     playerCol = playerX / TILE_SIZE;
     playerRow = playerY / TILE_SIZE;
 }
-
-
-// Vẽ map
+//
 void drawLevel(Graphics* graphics, SDL_Texture* ice, SDL_Texture* fruit, SDL_Texture* enemy, SDL_Texture* player) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
@@ -287,8 +282,6 @@ void drawLevel(Graphics* graphics, SDL_Texture* ice, SDL_Texture* fruit, SDL_Tex
     graphics->renderTexture(winTexture, 200, 100);
 }
 }
-
-
 // MAIN
 int main(int argc, char* argv[]) {
     Graphics graphics;
@@ -307,17 +300,16 @@ int main(int argc, char* argv[]) {
     winTexture = graphics.loadTexture("assets/images/win.JPG");
 
     // am thanh
-    //audio.loadSound("eat", "assets/sounds/eat.wav");
-    //audio.loadSound("ice_break", "assets/sounds/break.wav");
     audio.loadMusic("assets/music/music.mp3");
     audio.loadSound("lose", "assets/sounds/lost.wav");
     audio.loadSound("eat", "assets/sounds/eat.wav");
-    bool running = true;
+    audio.loadSound("bottom_start", "assets/sounds/bottom_start.wav");
+    audio.loadSound("break_ice", "assets/sounds/break_ice.wav");
     int gameState = 0;
     SDL_Rect startButton = {380, 450, 200, 80};
 
     setupFruitTimer();
-
+    bool running= true;
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -328,12 +320,17 @@ int main(int argc, char* argv[]) {
                 int mouseY = event.button.y;
                 if (mouseX >= startButton.x && mouseX <= startButton.x + startButton.w &&
                     mouseY >= startButton.y && mouseY <= startButton.y + startButton.h) {
+                    if(!bottom_startSound){
+                        audio.playSound("bottom_start");
+                        SDL_Delay(1000);
+                        bottom_startSound= true;
+                    }
                     gameState = 1;
                     audio.playMusic();
                     Mix_VolumeMusic(40);
                 }
             }
-            handleInput(event);
+            handleInput(event,audio);
         }
 
         if (gameState == 0) {
@@ -351,7 +348,7 @@ int main(int argc, char* argv[]) {
                             e.y = row * TILE_SIZE;
                             e.direction = rand() % 4;
                             enemies.push_back(e);
-                            levelData[row][col] = ' '; // xóa E khỏi map tĩnh
+                            levelData[row][col] = ' ';
                         }
                     }
                 }
@@ -367,6 +364,7 @@ int main(int argc, char* argv[]) {
 
                     audio.stopMusic();
                     audio.playSound("lose");
+                    Mix_VolumeChunk(audio.getChunk("lose"), 100);
                     gameOverSoundPlayed=true;
                 }
             }

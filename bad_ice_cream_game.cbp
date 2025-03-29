@@ -38,6 +38,21 @@
 			<Add library="SDL2" />
 			<Add directory="SDL2_mixer-2.6.3/lib" />
 		</Linker>
+		<Unit filename="assets/images/background_play.png" />
+		<Unit filename="assets/images/background_start.jpg" />
+		<Unit filename="assets/images/enemy.png" />
+		<Unit filename="assets/images/fruit.png" />
+		<Unit filename="assets/images/gameover.jpg" />
+		<Unit filename="assets/images/ice.png" />
+		<Unit filename="assets/images/icecreamtitle.png" />
+		<Unit filename="assets/images/player.png" />
+		<Unit filename="assets/images/startgame.png" />
+		<Unit filename="assets/images/win.jpg" />
+		<Unit filename="assets/music/music.mp3" />
+		<Unit filename="assets/sounds/bottom_start.mp3" />
+		<Unit filename="assets/sounds/break_ice.wav" />
+		<Unit filename="assets/sounds/eat.wav" />
+		<Unit filename="assets/sounds/lost.wav" />
 		<Unit filename="audio.cpp" />
 		<Unit filename="audio.h" />
 		<Unit filename="defs.h" />

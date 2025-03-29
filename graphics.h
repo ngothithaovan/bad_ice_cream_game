@@ -20,8 +20,6 @@ struct Graphics{
     void waitUntilKeyPressed();
     void quit();
     bool checkClick(int x,int y,SDL_Rect bottom);
-
-
 };
 
 #endif // GRAPHICS__H
