@@ -50,7 +50,7 @@
 		<Unit filename="assets/images/startgame.png" />
 		<Unit filename="assets/images/win.jpg" />
 		<Unit filename="assets/music/music.mp3" />
-		<Unit filename="assets/sounds/bottom_start.mp3" />
+		<Unit filename="assets/sounds/bottom_start.wav" />
 		<Unit filename="assets/sounds/break_ice.wav" />
 		<Unit filename="assets/sounds/eat.wav" />
 		<Unit filename="assets/sounds/lost.wav" />

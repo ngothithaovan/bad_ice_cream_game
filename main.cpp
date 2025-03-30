@@ -27,26 +27,28 @@ SDL_Texture* gameOverTexture = nullptr;
 
 char levelData[MAP_HEIGHT][MAP_WIDTH] = {
     "##################",
-    "#P F F#F E F# F E#",
-    "#F###F######F###F#",
-    "#F#F F#F EFF#F F #",
-    "#F#F##F######F#F##",
-    "#F FFF#FFF #FFF F#",
-    "#####F#F##F#####F#",
-    "#F E F#F F E F F #",
-    "#F##F######F###F #",
-    "#F#FF#F E#F F#F F#",
-    "#F#E####F#F##FFF #",
-    "#FFF EFFF FFEF FF#",
-    "##################",
-    "###F###F##F###F###"
+    "#P  #F #   ## F F#",
+    "# ##F# ### # ##F #",
+    "# F  #F  F #  F  #",
+    "### ####F# #######",
+    "# F  F #F#    F  #",
+    "# #### #F##### #F#",
+    "# #F   #  EF # #F#",
+    "#F##F####### #F  #",
+    "# F  F  E  F ### #",
+    "#F ###F###F#   FE#",
+    "#  E F F F ###F  #",
+    "##################"
 };
 
 // Kiểm tra gần tường
 bool isNearWall(float x, float y) {
-    int col = x / TILE_SIZE;
-    int row = y / TILE_SIZE;
-    if (col < 0 || col >= MAP_WIDTH || row < 0 || row >= MAP_HEIGHT) return true;
+    if (x < 0 || y < 0 || x + PLAYER_SIZE > MAP_WIDTH * TILE_SIZE || y + PLAYER_SIZE > MAP_HEIGHT * TILE_SIZE) {
+        return true;
+    }
+
+    int col = static_cast<int>(x) / TILE_SIZE;
+    int row = static_cast<int>(y) / TILE_SIZE;
 
     for (int dy = -1; dy <= 1; dy++) {
         for (int dx = -1; dx <= 1; dx++) {
@@ -56,16 +58,18 @@ bool isNearWall(float x, float y) {
                 if (levelData[checkRow][checkCol] == '#') {
                     float wallX = checkCol * TILE_SIZE;
                     float wallY = checkRow * TILE_SIZE;
-                    if (abs(x - wallX) < PLAYER_SIZE && abs(y - wallY) < PLAYER_SIZE) {
-                    return true;
-                }
-
+                    if (std::abs(x - wallX) < PLAYER_SIZE && std::abs(y - wallY) < PLAYER_SIZE) {
+                        return true;
+                    }
                 }
             }
         }
     }
+
     return false;
 }
+
+
 // direction enemy.
 struct Character {
     int x,y;
@@ -316,19 +320,18 @@ void resetGame() {
     lastBreakTime = 0;
    const char originalMap[MAP_HEIGHT][MAP_WIDTH] = {
     "##################",
-    "#P F F#F E F# F E#",
-    "#F###F######F###F#",
-    "#F#F F#F EFF#F F #",
-    "#F#F##F######F#F##",
-    "#F FFF#FFF #FFF F#",
-    "#####F#F##F#####F#",
-    "#F E F#F F E F F #",
-    "#F##F######F###F #",
-    "#F#FF#F E#F F#F F#",
-    "#F#E####F#F##FFF #",
-    "#FFF EFFF FFEF FF#",
-    "##################",
-    "###F###F##F###F###",
+    "#P  #F #   ## F F#",
+    "# ##F# ### # ##F #",
+    "# F  #F  F #  F  #",
+    "### ####F# #######",
+    "# F  F #F#    F  #",
+    "# #### #F##### #F#",
+    "# #F   #  EF # #F#",
+    "#F##F####### #F  #",
+    "# F  F  E  F ### #",
+    "#F ###F###F#   FE#",
+    "#  E F F F ###F  #",
+    "##################"
 };
     memcpy(levelData, originalMap, sizeof(levelData));
     enemies.clear();

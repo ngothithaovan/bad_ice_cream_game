@@ -2,7 +2,7 @@
 #define  DEFS__H
 
 const int SCREEN_WIDTH=900;
-const int SCREEN_HEIGHT =700;
+const int SCREEN_HEIGHT =650;
 #define WINDOW_TITLE "BAD ICE CREAM CUTE"
 const int MAP_WIDTH = 19;
 const int MAP_HEIGHT = 14;
