@@ -1,19 +1,19 @@
 # depslib dependency file v1.0
-1743243106 source:d:\game\bad_ice_cream_game\graphics.cpp
+1743325880 source:d:\game\bad_ice_cream_game\graphics.cpp
 	<iostream>
 	<vector>
 	<SDL.h>
 	<SDL_image.h>
 	"graphics.h"
 
-1743243142 d:\game\bad_ice_cream_game\graphics.h
+1743325880 d:\game\bad_ice_cream_game\graphics.h
 	<SDL.h>
 	<SDL_image.h>
 	"defs.h"
 
-1743269420 d:\game\bad_ice_cream_game\defs.h
+1743325880 d:\game\bad_ice_cream_game\defs.h
 
-1743267569 source:d:\game\bad_ice_cream_game\main.cpp
+1743325914 source:d:\game\bad_ice_cream_game\main.cpp
 	<iostream>
 	<ctime>
 	<SDL.h>
@@ -25,11 +25,11 @@
 	"graphics.h"
 	"audio.h"
 
-1743129691 source:d:\game\bad_ice_cream_game\audio.cpp
+1743325880 source:d:\game\bad_ice_cream_game\audio.cpp
 	"audio.h"
 	<iostream>
 
-1743129597 d:\game\bad_ice_cream_game\audio.h
+1743325880 d:\game\bad_ice_cream_game\audio.h
 	<SDL_mixer.h>
 	<string>
 	<map>

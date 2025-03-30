@@ -16,6 +16,8 @@ struct Audio {
     void playMusic(); // Phát nhạc nền
     void stopMusic(); // Dừng nhạc nền
     void cleanup(); // Giải phóng tài nguyên
+    Mix_Chunk* getChunk(const std::string& name);
+
 };
 
 #endif

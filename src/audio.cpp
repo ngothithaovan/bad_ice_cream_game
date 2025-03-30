@@ -52,3 +52,7 @@ void Audio::cleanup() {
 
     Mix_CloseAudio();
 }
+Mix_Chunk* Audio::getChunk(const std::string& name) {
+    if (soundEffects.count(name)) return soundEffects[name];
+    return nullptr;
+}

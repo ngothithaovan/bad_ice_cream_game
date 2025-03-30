@@ -25,38 +25,23 @@ Uint32 lastBreakTime = 0;
 SDL_Texture* winTexture = nullptr;
 SDL_Texture* gameOverTexture = nullptr;
 
-//char levelData[MAP_HEIGHT][MAP_WIDTH] = {
-//    "##################",
-//    "#P F F#F E F# F E#",
-//    "#F###F######F###F#",
-//    "#F#F F#F EFF#F F #",
-//    "#F#F##F######F#F##",
-//    "#F FFF#FFF #FFF F#",
-//    "#####F#F##F#####F#",
-//    "#F E F#F F E F F #",
-//    "#F##F######F###F #",
-//    "#F#FF#F E#F F#F F#",
-//    "#F#E####F#F##FFF #",
-//    "#FFF EFFF FFEF FF#",
-//    "##################",
-//    "###F###F##F###F###"
-//};
- char levelData[MAP_HEIGHT][MAP_WIDTH] = {
+char levelData[MAP_HEIGHT][MAP_WIDTH] = {
     "##################",
-    "#P F  ##########E#",
-    "# ### ############",
-    "# #  #       #   #",
-    "# # ## ###### # ##",
-    "#     #     #    #",
-    "##### # ##F#### ##",
-    "#    #         F #",
-    "# ## ###### ###  #",
-    "#  ## #  #   #  ##",
-    "# # #### # ##    #",
-    "#         F      #",
+    "#P F F#F E F# F E#",
+    "#F###F######F###F#",
+    "#F#F F#F EFF#F F #",
+    "#F#F##F######F#F##",
+    "#F FFF#FFF #FFF F#",
+    "#####F#F##F#####F#",
+    "#F E F#F F E F F #",
+    "#F##F######F###F #",
+    "#F#FF#F E#F F#F F#",
+    "#F#E####F#F##FFF #",
+    "#FFF EFFF FFEF FF#",
     "##################",
-    "### ### ## ### ###"
+    "###F###F##F###F###"
 };
+
 // Kiểm tra gần tường
 bool isNearWall(float x, float y) {
     int col = x / TILE_SIZE;
@@ -299,17 +284,10 @@ void drawLevel(Graphics* graphics, SDL_Texture* ice, SDL_Texture* fruit, SDL_Tex
         }
     }
     int offset = (TILE_SIZE - PLAYER_SIZE) / 2;
-SDL_Rect playerRect = {0, 0, PLAYER_SIZE, PLAYER_SIZE};
-graphics->blitRect(player, &playerRect, (int)playerX + offset, (int)playerY + offset);
-
+    SDL_Rect playerRect = {0, 0, PLAYER_SIZE, PLAYER_SIZE};
+    graphics->blitRect(player, &playerRect, (int)playerX + offset, (int)playerY + offset);
     for (auto& e : enemies) {
     graphics->renderTexture(enemy, (int)e.x, (int)e.y);
-}
-    if (gameOver && gameOverTexture) {
-        graphics->renderTexture(gameOverTexture, 200, 100);
-    }
-    if (gameWin && winTexture) {
-    graphics->renderTexture(winTexture, 200, 100);
 }
 }
 bool isMouseClickedInRect(SDL_Event& e, const SDL_Rect& rect) {
@@ -338,19 +316,19 @@ void resetGame() {
     lastBreakTime = 0;
    const char originalMap[MAP_HEIGHT][MAP_WIDTH] = {
     "##################",
-    "#P F  ##########E#",
-    "# ### ############",
-    "# #  #       #   #",
-    "# # ## ###### # ##",
-    "#     #     #    #",
-    "##### # ##F#### ##",
-    "#    #         F #",
-    "# ## ###### ###  #",
-    "#  ## #  #   #  ##",
-    "# # #### # ##    #",
-    "#         F      #",
+    "#P F F#F E F# F E#",
+    "#F###F######F###F#",
+    "#F#F F#F EFF#F F #",
+    "#F#F##F######F#F##",
+    "#F FFF#FFF #FFF F#",
+    "#####F#F##F#####F#",
+    "#F E F#F F E F F #",
+    "#F##F######F###F #",
+    "#F#FF#F E#F F#F F#",
+    "#F#E####F#F##FFF #",
+    "#FFF EFFF FFEF FF#",
     "##################",
-    "### ### ## ### ###"
+    "###F###F##F###F###",
 };
     memcpy(levelData, originalMap, sizeof(levelData));
     enemies.clear();
@@ -398,15 +376,11 @@ int main(int argc, char* argv[]) {
     audio.loadSound("bottom_start", "assets/sounds/bottom_start.wav");
     audio.loadSound("break_ice", "assets/sounds/break_ice.wav");
 
-
     enum GameState { MENU, PLAYING, WIN, GAMEOVER };
     GameState currentState = MENU;
-
     SDL_Rect startButton = {370, 450, 200, 80};
-    SDL_Rect menuButton = {370, 520, 180, 60};
+    SDL_Rect menuButton = {370, 420, 180, 60};
     setupFruitTimer();
-
-    // Khởi tạo enemy từ map
     for (int row = 0; row < MAP_HEIGHT; ++row) {
         for (int col = 0; col < MAP_WIDTH; ++col) {
             if (levelData[row][col] == 'E') {
@@ -424,14 +398,12 @@ int main(int argc, char* argv[]) {
     }
 
     bool running = true;
-
     while (running) {
         SDL_Event event;
             while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             running = false;
         }
-
         if (currentState == MENU && event.type == SDL_MOUSEBUTTONDOWN) {
             if (isMouseClickedInRect(event, startButton)) {
                 audio.playSound("bottom_start");
@@ -440,7 +412,6 @@ int main(int argc, char* argv[]) {
                 Mix_VolumeMusic(40);
             }
         }
-
         if (currentState == GAMEOVER && event.type == SDL_MOUSEBUTTONDOWN) {
             SDL_Rect yesButton1 = {270, 520, 180, 60};
             SDL_Rect yesButton2 = {540, 520, 180, 60};
@@ -465,18 +436,14 @@ int main(int argc, char* argv[]) {
                 resetGame();
             }
         }
-
         handleInput(event, audio);
     }
-
-
         if (currentState == MENU) {
             graphics.prepareScene(background);
             graphics.renderTexture(icecreamtitle, 150, 50);
             graphics.renderTexture(startgame, startButton.x, startButton.y);
             graphics.presentScene();
         }
-
         else if (currentState == PLAYING) {
             updateEnemy();
             updatePlayer(running, audio);
@@ -493,21 +460,25 @@ int main(int argc, char* argv[]) {
                     currentState = GAMEOVER;
                 }
             }
+            if (gameWin) {
+                if (!gameOverSoundPlayed) {
+                    audio.stopMusic();
+                    audio.playSound("lose");
+                    Mix_VolumeChunk(audio.getChunk("lose"), 100);
+                    gameOverSoundPlayed = true;
+                    currentState = WIN;
+                }
+            }
         }
-
         else if (currentState == GAMEOVER) {
             graphics.prepareScene(gameOverTexture);
             graphics.presentScene();
-
         }
-
         else if (currentState == WIN) {
-            graphics.renderTexture(menutexture, menuButton.x, menuButton.y);
             graphics.prepareScene(winTexture);
+            graphics.renderTexture(menutexture, menuButton.x, menuButton.y);
             graphics.presentScene();
-
         }
-
         SDL_Delay(16);
     }
     SDL_DestroyTexture(background);
