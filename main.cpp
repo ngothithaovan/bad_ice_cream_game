@@ -416,8 +416,8 @@ int main(int argc, char* argv[]) {
             }
         }
         if (currentState == GAMEOVER && event.type == SDL_MOUSEBUTTONDOWN) {
-            SDL_Rect yesButton1 = {270, 520, 180, 60};
-            SDL_Rect yesButton2 = {540, 520, 180, 60};
+            SDL_Rect yesButton1 = {270, 480, 180, 60};
+            SDL_Rect yesButton2 = {540, 480, 180, 60};
             if (isMouseClickedInRect(event, yesButton1) || isMouseClickedInRect(event, yesButton2)) {
                 audio.playSound("bottom_start");
                 currentState = MENU;
